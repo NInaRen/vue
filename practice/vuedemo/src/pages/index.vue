@@ -18,10 +18,10 @@
         <div class="line-space"></div>
 
         <div class="title">最新消息</div>
-        <div class="class-item">
+        <div class="class-item news-list">
           <ul>
             <li v-for="item in newsList">
-              <a :href="item.url">{{ item.title }}</a>
+              <a :href="item.url" class="new-item">{{ item.title }}</a>
               <span v-if="item.hot" class="hot-tag">HOT</span>
             </li>
           </ul>
@@ -60,10 +60,10 @@
     },
     created: function () {
       //学习前端模拟数据获取
-      this.$http.get('getList').then(function(data){
-        console.log(data);
-      }, function (err) {
-        console.log(data);
+      this.$http.get('api/news', {id:2}).then((data)=>{
+        this.newsList = data.data.data
+      },(err) => {
+        console.log(err);
       })
     },
     data () {
@@ -74,25 +74,25 @@
             name: 'hah',
             description: "testestetoiopxdlasdfdgfhjkgia",
             id: 'car',
-            toKey: '/'
+            toKey: 'publish'
           },
           {
             name: 'hah',
             description: "testestetoiopxdlasdfdgfhjkgia",
             id: 'festival',
-            toKey: '/'
+            toKey: 'analysis'
           },
           {
             name: 'hah',
             description: "testestetoiopxdlasdfdgfhjkgia",
             id: 'sunny',
-            toKey: '/'
+            toKey: 'count'
           },
           {
             name: 'hah',
             description: "testestetoiopxdlasdfdgfhjkgia",
             id: 'moving',
-            toKey: '/'
+            toKey: 'forecast'
           }
         ],
         productList: {
@@ -163,7 +163,7 @@
           {
             src: require('../assets/slideShow/pic3.jpg'),
             title: 'telephone',
-            href: 'suunny'
+            href: 'detail/publish'
           },
           {
             src: require('../assets/slideShow/pic4.jpg'),
@@ -293,6 +293,23 @@
 
   .index-img-moving {
     background: url("../assets/img/side.png") no-repeat center;
+  }
+
+  .new-item {
+    display: inline-block;
+    width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .new-item:hover {
+    background-color: #92eeeb;
+  }
+
+  .news-list {
+    min-height: 220px;
   }
 
 </style>
