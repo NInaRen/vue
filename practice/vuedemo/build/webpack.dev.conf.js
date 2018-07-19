@@ -14,6 +14,7 @@ const express = require('express')
 const app = express()
 const appData = require('../db.json')
 const news = appData.getNewsList
+const orderList = appData.getOrderList
 const apiRouter = express.Router()
 app.use('/api',apiRouter)
 
@@ -57,6 +58,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
           data: news
         })
       })
+      app.post('/api/getOrderList',(req, res) => {
+        res.json({
+          errno: 0,
+          data:orderList
+        })
+      })
       app.get('/api/login',(req, res) => {
         res.json({
           errno: 0,
@@ -67,6 +74,19 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         res.json({
           errno: 0,
           data: {amount: 345}
+        })
+      })
+
+      app.post('/api/createOrder',(req, res) => {
+        res.json({
+          errno: 0,
+          data: {bankId: 123, price: 123,orderId: 12325465}
+        })
+      })
+
+      app.post('/api/checkOrder',(req, res) => {
+        res.json({
+          errno: 0,
         })
       })
     }

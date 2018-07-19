@@ -50,7 +50,7 @@
           <div class="sales-board-line">
               <div class="sales-board-line-left">&nbsp;</div>
               <div class="sales-board-line-right">
-                  <div class="button">
+                  <div class="button" @click="showPayDialog">
                     立即购买
                   </div>
               </div>
@@ -78,9 +78,9 @@
           <li>用户所在地理区域分布状况等</li>
         </ul>
       </div>
-      <my-dialog :is-show="isShowPayDialog" >
+      <my-dialog :is-show="isShowPayDialog" @on-close="hidePayDialog">
         <table class="buy-dialog-table">
-          <tr>
+          <tr v-for="">
             <th>购买数量</th>
             <th>产品类型</th>
             <th>有效时间</th>
@@ -98,15 +98,15 @@
           </tr>
         </table>
         <h3 class="buy-dialog-title">请选择银行</h3>
-        <bank-chooser ></bank-chooser>
-        <div class="button buy-dialog-btn">
+        <bank-chooser @on-change="bankChoose"></bank-chooser>
+        <div class="button buy-dialog-btn" @click="confirmBuy">
           确认购买
         </div>
       </my-dialog>
-      <my-dialog :is-show="isShowErrDialog" >
+      <my-dialog :is-show="isShowErrDialog" @on-close="hideErrorDialog">
         支付失败！
       </my-dialog>
-      <!--<check-order :is-show-check-dialog="isShowCheckOrder" :order-id="orderId" ></check-order>-->
+      <check-order :is-show-check-dialog="isShowCheckOrder" :order-id="orderId" ></check-order>
   </div>
 </template>
 
@@ -116,6 +116,8 @@ import MyDialog from '../../components/dialog'
 import VCounter from '../../components/counter'
 import VChooser from '../../components/chooser'
 import VMulChooser from '../../components/multiplyChooser'
+import BankChooser from '../../components/bankChooser'
+import CheckOrder from '../../components/checkOrder'
 
 export default {
   components: {
@@ -123,7 +125,9 @@ export default {
     MyDialog,
     VCounter,
     VChooser,
-    VMulChooser
+    VMulChooser,
+    BankChooser,
+    CheckOrder
   },
   data () {
     return {
@@ -178,12 +182,11 @@ export default {
       bankId: null,
       orderId: null,
       isShowCheckOrder: false,
-      isShowErrDialog: false
+      isShowErrDialog: false,
     }
   },
   methods: {
     onParamChange(attr, data) {
-      console.log(attr, data)
       this[attr] = data
       this.getPrice()
     },
@@ -200,6 +203,43 @@ export default {
       this.$http.post('/api/getPrice', reqParam)
         .then((res) => {
           this.price = res.data.data.amount
+        })
+    },
+    showPayDialog () {
+      this.isShowPayDialog = true
+    },
+    hidePayDialog() {
+      this.isShowPayDialog = false
+    },
+    showErrorDialog () {
+      this.isShowErrDialog = true
+    },
+    hideErrorDialog() {
+      this.isShowErrDialog = false
+    },
+    bankChoose(bankObj) {
+      this.bankId = bankObj.id
+    },
+    confirmBuy() {
+      let buyVersionsArray = _.map(this.versions, (item) => {
+        return item.value
+      })
+      let reqParam = {
+        buyNum: this.buyNum,
+        buyType: this.buyType.value,
+        versions: buyVersionsArray.join(","),
+        period: this.period.value,
+        price: this.price,
+        bankId: this.bankId
+      }
+      this.$http.post('/api/createOrder', reqParam)
+        .then((res) => {
+          this.isShowPayDialog = false;
+          this.isShowCheckOrder = true;
+          this.orderId = res.data.data.orderId
+        }, (err) => {
+          this.isShowPayDialog = false;
+          this.isShowErrDialog = true;
         })
     }
   },
